@@ -1,7 +1,12 @@
-$results = {}
+# $results = {}
 $min = 1
 $max = 10
 
+
+def clear_console
+  system("cls") || system("clear")
+
+end
 def check_guess(guess)
   if guess > $rand_num
     "Too big"
@@ -19,15 +24,16 @@ def get_guess
   gets
 end
 
-def start_game
+def game_logic
+  clear_console
   $rand_num = rand($min..$max)
   guesses = 0
-  puts("Guess random chosen number.\n'quit' ends program")
+  puts("Guess random chosen number. 'quit' ends game")
   guess_message = ""
 
   while guess_message != "hit" do
     guess = get_guess
-    if guess == "quit\n"
+    if guess.downcase == "quit\n"
       puts("bye")
       return 0
     end
@@ -41,51 +47,51 @@ end
 def save_score(guesses)
   puts("Type your nickname to save score")
   name = gets.chop
-  if $results[name]
-    $results[name].append(guesses)
-  else
-    $results[name] = [guesses]
-  end
+  # if $results[name]
+  #   $results[name].append(guesses)
+  # else
+  #   $results[name] = [guesses]
+  # end
   open("scores.txt", 'a') do |f|
     f.puts("#{name},#{guesses},#{$rand_num}")
   end
-  # File.write("scores.txt","#{name},#{guesses},#{$rand_num}" , 'a')
 end
 
-game_on = true
-
-while game_on do
-  guesses = start_game
-  if guesses == 0
-    break
-  end
-  save_score(guesses)
-
-  good_input = false
-
-  until good_input
+def play_again
+  clear_console
+  valid_input = false
+  until valid_input
     puts("Play again? [Y/N]")
     decision = gets.downcase.chop
     decision_array = %w[y yes n no]
 
     if decision_array.include? decision
-      good_input = true
+      valid_input = true
       if decision == "y" || decision == "yes"
-        guesses = start_game
-        if guesses == 0
-          break
-        end
-        save_score(guesses)
+        return true
       else
         if decision == "n" || decision == "no"
-          game_on = false
           puts("bye")
+          return false
         end
       end
     else
       puts("wrong decision")
     end
   end
-
 end
+def start_game
+  game_on = true
+
+  while game_on do
+    guesses = game_logic
+    if guesses == 0
+      return
+    end
+    save_score(guesses)
+    game_on = play_again
+
+  end
+end
+start_game
 
